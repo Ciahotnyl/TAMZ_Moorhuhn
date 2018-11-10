@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Moorhuhn</string>
+    <color name="podklad">#FF8000</color>
 </resources>
