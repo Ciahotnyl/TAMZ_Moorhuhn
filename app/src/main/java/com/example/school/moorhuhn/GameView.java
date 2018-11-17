@@ -1,45 +1,43 @@
 package com.example.school.moorhuhn;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import java.util.ArrayList;
+import java.util.List;
+
 
 class GameView extends SurfaceView {
 
-    private Bitmap chicken;
-    private Bitmap chicken_left;
-    private Bitmap chicken_right;
     private SurfaceHolder holder;
     private GameThread gameThread;
+    private long lastClick;
+    private int player_points = 0;
 
 
-    //sprite data
-    private int x1 = 50;
-    private int y1 = 50;
-    private int x_speed = 5;
-    private int y_speed = 5;
-    private int spriteWidth = 0;
-    private int spriteHeight = 0;
+    private List<Sprite> sprites = new ArrayList<Sprite>();
 
 
     public GameView(Context context) {
         super(context);
+
         gameThread = new GameThread(this);
-        chicken_left = BitmapFactory.decodeResource(getResources(), R.drawable.chicken_left_small);
-        chicken_right = BitmapFactory.decodeResource(getResources(), R.drawable.chicken_right_small);
-        spriteHeight = chicken_left.getHeight();
-        spriteWidth = chicken_left.getWidth();
         holder = getHolder();
 
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                createSprites();
                 gameThread.setRunning(true);
                 gameThread.start();
+
             }
 
             @Override
@@ -62,31 +60,56 @@ class GameView extends SurfaceView {
             }
         });
     }
+    private void createSprites() {
+        sprites.add(createSprite(R.drawable.chicken_left_small));
+        sprites.add(createSprite(R.drawable.chicken_left_small));
+        sprites.add(createSprite(R.drawable.chicken_left_small));
+        sprites.add(createSprite(R.drawable.chicken_left_small));
+        sprites.add(createSprite(R.drawable.chicken_right_small));
+        sprites.add(createSprite(R.drawable.chicken_right_small));
+        sprites.add(createSprite(R.drawable.chicken_right_small));
+        sprites.add(createSprite(R.drawable.chicken_right_small));
+    }
+
+    private Sprite createSprite(int resource) {
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(), resource);
+        return new Sprite(this, bmp);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (System.currentTimeMillis() - lastClick > 200) {
+            lastClick = System.currentTimeMillis();
+            synchronized (getHolder()) {
+                for (int i = sprites.size() - 1; i >= 0; i--) {
+                    Sprite sprite = sprites.get(i);
+                    if (sprite.colliding(event.getX(), event.getY())) {
+                        sprites.remove(sprite);
+                        player_points += 5;
+                        break;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
-        //super.onDraw(canvas);
+        if(canvas != null) {
 
-        //check border collision left/right
-        if(x1<0 || x1+spriteWidth >= canvas.getWidth()){
-            x_speed *= -1;
-        }
-        //check border collision left/right
-        if(y1<0 || y1+ spriteHeight >= canvas.getHeight()){
-            y_speed *= -1;
-        }
-        if(x_speed < 0){
-            chicken = chicken_left;
-        }
-        else{
-            chicken = chicken_right;
-        }
-        x1 += x_speed;
-        y1 += y_speed;
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawPaint(paint);
 
-        if(canvas!=null)
-        {
-            canvas.drawColor(Color.BLUE);
-            canvas.drawBitmap(chicken, x1, y1, null);
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(50);
+            canvas.drawText("Body: "+player_points, 10, 50, paint);
+
+            for (Sprite sprite : sprites) {
+                sprite.onDraw(canvas);
+            }
         }
     }
 }
