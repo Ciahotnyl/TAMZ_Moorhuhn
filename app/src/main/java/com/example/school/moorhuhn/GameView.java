@@ -7,11 +7,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 class GameView extends SurfaceView {
@@ -20,14 +22,15 @@ class GameView extends SurfaceView {
     private GameThread gameThread;
     private long lastClick;
     private int player_points = 0;
-
+    private SoundPlayer sound;
+    private int ammo = 2;
 
     private List<Sprite> sprites = new ArrayList<Sprite>();
 
 
     public GameView(Context context) {
         super(context);
-
+        sound = new SoundPlayer(context);
         gameThread = new GameThread(this);
         holder = getHolder();
 
@@ -73,23 +76,36 @@ class GameView extends SurfaceView {
 
     private Sprite createSprite(int resource) {
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), resource);
+
         return new Sprite(this, bmp);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (System.currentTimeMillis() - lastClick > 200) {
-            lastClick = System.currentTimeMillis();
-            synchronized (getHolder()) {
-                for (int i = sprites.size() - 1; i >= 0; i--) {
-                    Sprite sprite = sprites.get(i);
-                    if (sprite.colliding(event.getX(), event.getY())) {
-                        sprites.remove(sprite);
-                        player_points += 5;
-                        break;
+
+        if (System.currentTimeMillis() - lastClick > 500) {
+            if(ammo > 0){
+                sound.playFireSound();
+                ammo--;
+                lastClick = System.currentTimeMillis();
+                synchronized (getHolder()) {
+                    for (int i = sprites.size() - 1; i >= 0; i--) {
+                        Sprite sprite = sprites.get(i);
+                        if (sprite.colliding(event.getX(), event.getY())) {
+                            sprites.remove(sprite);
+                            sound.playRoosterSound();
+                            player_points += 5;
+                            break;
+                        }
                     }
                 }
             }
+            else{
+                sound.playReloadSound();
+                lastClick = System.currentTimeMillis();
+                ammo = 2;
+            }
+
         }
         return true;
     }

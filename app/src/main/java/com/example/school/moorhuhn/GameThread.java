@@ -1,6 +1,7 @@
 package com.example.school.moorhuhn;
 
 import android.graphics.Canvas;
+import android.media.MediaPlayer;
 
 class GameThread extends Thread{
     private GameView view;
@@ -9,6 +10,7 @@ class GameThread extends Thread{
     public GameThread(GameView view){
         this.view = view;
     }
+
 
     public void setRunning(boolean run)
     {
