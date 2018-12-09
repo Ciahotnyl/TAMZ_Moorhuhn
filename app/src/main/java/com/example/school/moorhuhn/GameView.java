@@ -1,19 +1,23 @@
 package com.example.school.moorhuhn;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Random;
+import java.util.Timer;
 
 
 class GameView extends SurfaceView {
@@ -22,8 +26,12 @@ class GameView extends SurfaceView {
     private GameThread gameThread;
     private long lastClick;
     private int player_points = 0;
+    private int level = 0;
+    private int lifes = 3;
     private SoundPlayer sound;
     private int ammo = 2;
+    Resources res = getResources();
+    Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.bloodstain);
 
     private List<Sprite> sprites = new ArrayList<Sprite>();
 
@@ -37,7 +45,11 @@ class GameView extends SurfaceView {
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                createSprites();
+                player_points = 0;
+                level = 0;
+                lifes = 3;
+                ammo = 2;
+                createSprites(level);
                 gameThread.setRunning(true);
                 gameThread.start();
 
@@ -63,21 +75,22 @@ class GameView extends SurfaceView {
             }
         });
     }
-    private void createSprites() {
-        sprites.add(createSprite(R.drawable.chicken_left_small));
-        sprites.add(createSprite(R.drawable.chicken_left_small));
-        sprites.add(createSprite(R.drawable.chicken_left_small));
-        sprites.add(createSprite(R.drawable.chicken_left_small));
-        sprites.add(createSprite(R.drawable.chicken_right_small));
-        sprites.add(createSprite(R.drawable.chicken_right_small));
-        sprites.add(createSprite(R.drawable.chicken_right_small));
-        sprites.add(createSprite(R.drawable.chicken_right_small));
+
+    private void createSprites(int lvl) {
+        for(int i = 0; i < 5 + lvl; i++){
+            sprites.add(createSprite(R.drawable.chicken_left_small, false));
+            Random rand = new Random();
+            int n = rand.nextInt(10);
+            if(n > 7){
+                sprites.add(createSprite(R.drawable.bomb, true));
+            }
+        }
     }
 
-    private Sprite createSprite(int resource) {
+    private Sprite createSprite(int resource, boolean isBomb) {
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), resource);
 
-        return new Sprite(this, bmp);
+        return new Sprite(this, bmp, isBomb);
     }
 
     @Override
@@ -92,8 +105,24 @@ class GameView extends SurfaceView {
                     for (int i = sprites.size() - 1; i >= 0; i--) {
                         Sprite sprite = sprites.get(i);
                         if (sprite.colliding(event.getX(), event.getY())) {
+                            if(sprites.get(i).isBomb){
+                                sound.playBoomSound();
+                                lifes -= 1;
+                                if(lifes <= 0){
+                                    Intent in = new Intent(((Activity)getContext()),MainActivity.class);
+                                    in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    ((Activity)getContext()).startActivity(in);
+                                }
+                            }
+                            else{
+                                player_points += 5;
+                                sound.playRoosterSound();
+                            }
                             sprites.remove(sprite);
-                            sound.playRoosterSound();
+                            if(sprites.isEmpty()){
+                                level += 1;
+                                createSprites(level);
+                            }
                             player_points += 5;
                             break;
                         }
@@ -105,7 +134,6 @@ class GameView extends SurfaceView {
                 lastClick = System.currentTimeMillis();
                 ammo = 2;
             }
-
         }
         return true;
     }
@@ -113,15 +141,15 @@ class GameView extends SurfaceView {
     @Override
     protected void onDraw(Canvas canvas) {
         if(canvas != null) {
-
             Paint paint = new Paint();
             paint.setColor(Color.WHITE);
             paint.setStyle(Paint.Style.FILL);
             canvas.drawPaint(paint);
-
             paint.setColor(Color.BLACK);
             paint.setTextSize(50);
             canvas.drawText("Body: "+player_points, 10, 50, paint);
+            canvas.drawText("Lvl: "+level, 300, 50, paint);
+            canvas.drawText("Životy: "+lifes, 500, 50, paint);
 
             for (Sprite sprite : sprites) {
                 sprite.onDraw(canvas);

@@ -13,19 +13,20 @@ import java.util.concurrent.TimeUnit;
 
 public class Sprite {
 
-    private int x;
-    private int y;
+    public int x;
+    public int y;
     private int x_speed;
     private int y_speed;
 
     private Bitmap chicken;
     private GameView gameview;
-    private int counter;
+    public boolean isBomb;
     String text;
 
-    public Sprite(GameView gameView, Bitmap pic){
+    public Sprite(GameView gameView, Bitmap pic, boolean isBomb){
         this.gameview = gameView;
         this.chicken = pic;
+        this.isBomb = isBomb;
 
         Random rand = new Random(System.currentTimeMillis());
         this.x = rand.nextInt(700) + 25;
