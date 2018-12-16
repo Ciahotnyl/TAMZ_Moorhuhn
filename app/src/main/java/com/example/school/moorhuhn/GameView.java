@@ -36,9 +36,9 @@ class GameView extends SurfaceView {
     private int ammo = 2;
     private int ChickenCount;
     private int ChickenTMP = 0;
-    boolean onlyBombs = false;
+    int bombsChange = 0;
+    private String Diff;
     Resources res = getResources();
-    Bitmap bg;
 
     private List<Sprite> sprites = new ArrayList<Sprite>();
 
@@ -46,9 +46,22 @@ class GameView extends SurfaceView {
     public static final String TEXT_BODY = "text";
     public static final String TEXT_LVL = "lvl";
 
-    public GameView(Context context) {
+    public GameView(Context context, String diff) {
         super(context);
+        Diff = diff;
+        switch (diff){
+            case "Easy":
+                bombsChange = 8;
+                break;
+            case "Medium":
+                bombsChange = 5;
+                break;
+            case "Hard":
+                bombsChange = 3;
+                break;
+        }
         sound = new SoundPlayer(context);
+
         gameThread = new GameThread(this);
         holder = getHolder();
 
@@ -93,7 +106,7 @@ class GameView extends SurfaceView {
             sprites.add(createSprite(R.drawable.chicken_left_small, false));
             Random rand = new Random();
             int n = rand.nextInt(10);
-            if(n > 7){
+            if(n > bombsChange){
                 sprites.add(createSprite(R.drawable.bomb, true));
             }
         }
@@ -171,6 +184,9 @@ class GameView extends SurfaceView {
             canvas.drawText("Body: "+player_points, 10, 50, paint);
             canvas.drawText("Lvl: "+level, 300, 50, paint);
             canvas.drawText("Životy: "+lifes, 500, 50, paint);
+            canvas.drawText("Diff: "+Diff, 750, 50, paint);
+            canvas.drawText("Ammo: "+ammo, 750, 1550, paint);
+
 
             for (Sprite sprite : sprites) {
                 sprite.onDraw(canvas);

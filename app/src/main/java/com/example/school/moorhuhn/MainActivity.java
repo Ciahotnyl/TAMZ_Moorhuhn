@@ -20,7 +20,6 @@ public class MainActivity extends AppCompatActivity {
 
         start_button = (Button) findViewById(R.id.Start_button);
         score_button = (Button) findViewById(R.id.Score_button);
-        maps_button = (Button) findViewById(R.id.Maps_button);
 
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,28 +35,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        maps_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openActivityMaps();
-            }
-        });
     }
     public void openActivityGame()
     {
-        Intent intent = new Intent(this, GameActivity.class);
+        Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
     public void openActivityScore()
     {
         Intent intent = new Intent(this, ScoreActivity.class);
-        startActivity(intent);
-    }
-
-    public void openActivityMaps()
-    {
-        Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
