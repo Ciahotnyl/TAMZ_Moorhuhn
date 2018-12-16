@@ -1,5 +1,7 @@
 package com.example.school.moorhuhn;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.media.MediaPlayer;
 
@@ -21,7 +23,7 @@ class GameThread extends Thread{
     public void run() {
         super.run();
         while(running){
-            Canvas c = null;
+            Canvas c = new Canvas();
             try{
                 c = view.getHolder().lockCanvas();
                 synchronized (view.getHolder()){

@@ -3,6 +3,7 @@ package com.example.school.moorhuhn;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,8 @@ import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,14 +30,17 @@ class GameView extends SurfaceView {
     private long lastClick;
     private int player_points = 0;
     private int level = 0;
-    private int lifes = 3;
+    private int lifes = 1;
     private SoundPlayer sound;
     private int ammo = 2;
     Resources res = getResources();
-    Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.bloodstain);
+    Bitmap bg;
 
     private List<Sprite> sprites = new ArrayList<Sprite>();
 
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String TEXT_BODY = "text";
+    public static final String TEXT_LVL = "lvl";
 
     public GameView(Context context) {
         super(context);
@@ -47,7 +53,7 @@ class GameView extends SurfaceView {
             public void surfaceCreated(SurfaceHolder holder) {
                 player_points = 0;
                 level = 0;
-                lifes = 3;
+                lifes = 1;
                 ammo = 2;
                 createSprites(level);
                 gameThread.setRunning(true);
@@ -81,7 +87,7 @@ class GameView extends SurfaceView {
             sprites.add(createSprite(R.drawable.chicken_left_small, false));
             Random rand = new Random();
             int n = rand.nextInt(10);
-            if(n > 7){
+            if(n > 1){
                 sprites.add(createSprite(R.drawable.bomb, true));
             }
         }
@@ -109,9 +115,11 @@ class GameView extends SurfaceView {
                                 sound.playBoomSound();
                                 lifes -= 1;
                                 if(lifes <= 0){
-                                    Intent in = new Intent(((Activity)getContext()),MainActivity.class);
+                                    Context context = (Activity)getContext();
+                                    saveData(context);
+                                    Intent in = new Intent((context),MainActivity.class);
                                     in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    ((Activity)getContext()).startActivity(in);
+                                    (context).startActivity(in);
                                 }
                             }
                             else{
@@ -123,7 +131,6 @@ class GameView extends SurfaceView {
                                 level += 1;
                                 createSprites(level);
                             }
-                            player_points += 5;
                             break;
                         }
                     }
@@ -155,5 +162,17 @@ class GameView extends SurfaceView {
                 sprite.onDraw(canvas);
             }
         }
+    }
+    public void saveData(Context c){
+        SharedPreferences sharedPreferences = c.getSharedPreferences(SHARED_PREFS, c.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(TEXT_BODY, String.valueOf(player_points));
+        editor.putString(TEXT_LVL, String.valueOf(level));
+
+        editor.commit();
+        editor.apply();
+
+        Toast.makeText(c, ("Data saved "+String.valueOf(player_points)+" - "+String.valueOf(level)), Toast.LENGTH_SHORT).show();
     }
 }

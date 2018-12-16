@@ -41,5 +41,12 @@
         android:layout_marginRight="0dp"
         android:layout_marginBottom="0dp"
         app:srcCompat="@drawable/whutsap" />
+    
+    <TextView
+        android:id="@+id/BestScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tu bude skore"
+        />
 
 </RelativeLayout>
