@@ -10,8 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -21,7 +19,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 
 
 class GameView extends SurfaceView {
@@ -49,7 +46,7 @@ class GameView extends SurfaceView {
     public GameView(Context context, String diff) {
         super(context);
         Diff = diff;
-        switch (diff){
+        switch (diff) {
             case "Easy":
                 bombsChange = 8;
                 break;
@@ -86,8 +83,8 @@ class GameView extends SurfaceView {
             public void surfaceDestroyed(SurfaceHolder holder) {
                 boolean retry = true;
                 gameThread.setRunning(false);
-                while(retry){
-                    try{
+                while (retry) {
+                    try {
                         gameThread.join();
                         retry = false;
 
@@ -102,11 +99,11 @@ class GameView extends SurfaceView {
     private void createSprites(int lvl) {
         ChickenCount = 5 + lvl;
         ChickenTMP = 0;
-        for(int i = 0; i < ChickenCount; i++){
+        for (int i = 0; i < ChickenCount; i++) {
             sprites.add(createSprite(R.drawable.chicken_left_small, false));
             Random rand = new Random();
             int n = rand.nextInt(10);
-            if(n > bombsChange){
+            if (n > bombsChange) {
                 sprites.add(createSprite(R.drawable.bomb, true));
             }
         }
@@ -121,8 +118,8 @@ class GameView extends SurfaceView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (System.currentTimeMillis() - lastClick > 500) {
-            if(ammo > 0){
+        if (System.currentTimeMillis() - lastClick > 450) {
+            if (ammo > 0) {
                 sound.playFireSound();
                 ammo--;
                 lastClick = System.currentTimeMillis();
@@ -130,30 +127,28 @@ class GameView extends SurfaceView {
                     for (int i = sprites.size() - 1; i >= 0; i--) {
                         Sprite sprite = sprites.get(i);
                         if (sprite.colliding(event.getX(), event.getY())) {
-                            if(sprites.get(i).isBomb){
+                            if (sprites.get(i).isBomb) {
                                 sound.playBoomSound();
                                 lifes -= 1;
-                                if(lifes <= 0){
-                                    Context context = (Activity)getContext();
+                                if (lifes <= 0) {
+                                    Context context = (Activity) getContext();
                                     saveData(context);
-                                    Intent in = new Intent((context),MainActivity.class);
+                                    Intent in = new Intent((context), MainActivity.class);
                                     in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     (context).startActivity(in);
                                 }
-                            }
-                            else{
+                            } else {
                                 player_points += 5;
                                 sound.playRoosterSound();
                             }
                             sprites.remove(sprite);
-                            for(int x = sprites.size() -1; x >= 0; x--){
+                            for (int x = sprites.size() - 1; x >= 0; x--) {
                                 Sprite s = sprites.get(x);
-                                if(!s.isBomb){
+                                if (!s.isBomb) {
                                     ChickenTMP++;
-                                    Log.d("TMP", ""+ChickenTMP);
                                 }
                             }
-                            if(ChickenCount-ChickenTMP == ChickenCount){
+                            if (ChickenCount - ChickenTMP == ChickenCount) {
                                 level += 1;
                                 createSprites(level);
                             }
@@ -162,8 +157,7 @@ class GameView extends SurfaceView {
                         }
                     }
                 }
-            }
-            else{
+            } else {
                 sound.playReloadSound();
                 lastClick = System.currentTimeMillis();
                 ammo = 2;
@@ -174,18 +168,18 @@ class GameView extends SurfaceView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(canvas != null) {
+        if (canvas != null) {
             Paint paint = new Paint();
             paint.setColor(Color.WHITE);
             paint.setStyle(Paint.Style.FILL);
             canvas.drawPaint(paint);
             paint.setColor(Color.BLACK);
             paint.setTextSize(50);
-            canvas.drawText("Body: "+player_points, 10, 50, paint);
-            canvas.drawText("Lvl: "+level, 300, 50, paint);
-            canvas.drawText("Životy: "+lifes, 500, 50, paint);
-            canvas.drawText("Diff: "+Diff, 750, 50, paint);
-            canvas.drawText("Ammo: "+ammo, 750, 1550, paint);
+            canvas.drawText("Body: " + player_points, 10, 50, paint);
+            canvas.drawText("Lvl: " + level, 300, 50, paint);
+            canvas.drawText("Životy: " + lifes, 500, 50, paint);
+            canvas.drawText("Diff: " + Diff, 750, 50, paint);
+            canvas.drawText("Ammo: " + ammo, 750, 1550, paint);
 
 
             for (Sprite sprite : sprites) {
@@ -193,16 +187,41 @@ class GameView extends SurfaceView {
             }
         }
     }
-    public void saveData(Context c){
+
+    public void saveData(Context c) {
         SharedPreferences sharedPreferences = c.getSharedPreferences(SHARED_PREFS, c.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putString(TEXT_BODY, String.valueOf(player_points));
-        editor.putString(TEXT_LVL, String.valueOf(level));
+        if(IsBigger(c, player_points)){
+            String txtBody = Diff + "_body";
+            String txtLvl = Diff + "_lvl";
+            editor.putString(txtBody, String.valueOf(player_points));
+            editor.putString(txtLvl, String.valueOf(level));
 
-        editor.commit();
-        editor.apply();
+            editor.commit();
+            editor.apply();
 
-        Toast.makeText(c, ("Data saved "+String.valueOf(player_points)+" - "+String.valueOf(level)), Toast.LENGTH_SHORT).show();
+            Toast.makeText(c, ("Data saved " + String.valueOf(player_points) + " - " + String.valueOf(level)), Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(c, "No saving, you are n00b!", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public boolean IsBigger(Context c, int new_BODY) {
+        SharedPreferences sharedPreferences = c.getSharedPreferences(SHARED_PREFS, c.MODE_PRIVATE);
+        String Actual_BODY = sharedPreferences.getString(Diff+"_body", "");
+        int old_b = 0;
+        try {
+            old_b = Integer.parseInt(Actual_BODY);
+        } catch (NumberFormatException nfe) {
+
+        }
+        if (new_BODY > old_b) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -20,9 +20,16 @@ public class ScoreActivity extends AppCompatActivity {
     public static final String SHARED_PREFS2 = "sharedPrefs";
     public static final String TEXT_BODY = "text";
     public static final String TEXT_LVL = "lvl";
-    TextView body;
-    private String LOAD_BODY;
-    private String LOAD_LVL;
+    TextView easy;
+    TextView medium;
+    TextView hard;
+    private String LOAD_BODY_Easy;
+    private String LOAD_LVL_Easy;
+    private String LOAD_BODY_Medium;
+    private String LOAD_LVL_Medium;
+    private String LOAD_BODY_Hard;
+    private String LOAD_LVL_Hard;
+
 
 
     @Override
@@ -30,7 +37,9 @@ public class ScoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_score);
-        body = (TextView)findViewById(R.id.BestScore);
+        easy = (TextView)findViewById(R.id.Easy);
+        medium = (TextView)findViewById(R.id.Medium);
+        hard = (TextView)findViewById(R.id.Hard);
         loadData();
         menu_button = (Button) findViewById(R.id.Back_button);
         menu_button.setOnClickListener(new View.OnClickListener() {
@@ -47,12 +56,18 @@ public class ScoreActivity extends AppCompatActivity {
     }
     public void loadData(){
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS2, MODE_PRIVATE);
-        LOAD_BODY = sharedPreferences.getString(TEXT_BODY, "");
-        LOAD_LVL = sharedPreferences.getString(TEXT_LVL, "");
+        LOAD_BODY_Easy = sharedPreferences.getString("Easy_body", "");
+        LOAD_LVL_Easy = sharedPreferences.getString("Easy_lvl", "");
+        LOAD_BODY_Medium = sharedPreferences.getString("Medium_body", "");
+        LOAD_LVL_Medium = sharedPreferences.getString("Medium_lvl", "");
+        LOAD_BODY_Hard = sharedPreferences.getString("Hard_body", "");
+        LOAD_LVL_Hard = sharedPreferences.getString("Hard_lvl", "");
         updateView();
     }
     public void updateView(){
 
-        body.setText("Level: "+ LOAD_LVL + ", body: "+LOAD_BODY);
+        easy.setText("Level: "+ LOAD_LVL_Easy + ", body: "+LOAD_BODY_Easy);
+        medium.setText("Level: "+ LOAD_LVL_Medium + ", body: "+LOAD_BODY_Medium);
+        hard.setText("Level: "+ LOAD_LVL_Hard + ", body: "+LOAD_BODY_Hard);
     }
 }
