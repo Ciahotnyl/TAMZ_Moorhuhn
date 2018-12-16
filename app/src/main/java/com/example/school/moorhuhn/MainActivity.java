@@ -10,6 +10,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
     private Button start_button;
     private Button score_button;
+    private Button maps_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         start_button = (Button) findViewById(R.id.Start_button);
         score_button = (Button) findViewById(R.id.Score_button);
+        maps_button = (Button) findViewById(R.id.Maps_button);
 
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,6 +35,13 @@ public class MainActivity extends AppCompatActivity {
                 openActivityScore();
             }
         });
+
+        maps_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openActivityMaps();
+            }
+        });
     }
     public void openActivityGame()
     {
@@ -43,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
     public void openActivityScore()
     {
         Intent intent = new Intent(this, ScoreActivity.class);
+        startActivity(intent);
+    }
+
+    public void openActivityMaps()
+    {
+        Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 

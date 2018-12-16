@@ -41,12 +41,30 @@
         android:layout_marginRight="0dp"
         android:layout_marginBottom="0dp"
         app:srcCompat="@drawable/whutsap" />
-    
+
     <TextView
         android:id="@+id/BestScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/Title"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="251dp"
+        android:layout_marginEnd="12dp"
         android:text="Tu bude skore"
-        />
+        android:textColor="#000000"
+        android:textSize="32dp"
+        android:layout_alignRight="@+id/Title"
+        android:layout_marginRight="12dp" />
+
+    <TextView
+        android:id="@+id/Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:text="Best score"
+        android:textColor="#000000"
+        android:textSize="48dp" />
 
 </RelativeLayout>

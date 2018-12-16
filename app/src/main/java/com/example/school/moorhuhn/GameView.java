@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -30,9 +31,12 @@ class GameView extends SurfaceView {
     private long lastClick;
     private int player_points = 0;
     private int level = 0;
-    private int lifes = 1;
+    private int lifes = 3;
     private SoundPlayer sound;
     private int ammo = 2;
+    private int ChickenCount;
+    private int ChickenTMP = 0;
+    boolean onlyBombs = false;
     Resources res = getResources();
     Bitmap bg;
 
@@ -53,7 +57,7 @@ class GameView extends SurfaceView {
             public void surfaceCreated(SurfaceHolder holder) {
                 player_points = 0;
                 level = 0;
-                lifes = 1;
+                lifes = 3;
                 ammo = 2;
                 createSprites(level);
                 gameThread.setRunning(true);
@@ -83,11 +87,13 @@ class GameView extends SurfaceView {
     }
 
     private void createSprites(int lvl) {
-        for(int i = 0; i < 5 + lvl; i++){
+        ChickenCount = 5 + lvl;
+        ChickenTMP = 0;
+        for(int i = 0; i < ChickenCount; i++){
             sprites.add(createSprite(R.drawable.chicken_left_small, false));
             Random rand = new Random();
             int n = rand.nextInt(10);
-            if(n > 1){
+            if(n > 7){
                 sprites.add(createSprite(R.drawable.bomb, true));
             }
         }
@@ -127,10 +133,18 @@ class GameView extends SurfaceView {
                                 sound.playRoosterSound();
                             }
                             sprites.remove(sprite);
-                            if(sprites.isEmpty()){
+                            for(int x = sprites.size() -1; x >= 0; x--){
+                                Sprite s = sprites.get(x);
+                                if(!s.isBomb){
+                                    ChickenTMP++;
+                                    Log.d("TMP", ""+ChickenTMP);
+                                }
+                            }
+                            if(ChickenCount-ChickenTMP == ChickenCount){
                                 level += 1;
                                 createSprites(level);
                             }
+                            ChickenTMP = 0;
                             break;
                         }
                     }
