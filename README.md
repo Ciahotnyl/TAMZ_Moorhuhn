@@ -18,5 +18,6 @@
 ### Hra končí v případě, že jste se ocitl na 0 životech.
 ### Po skončení hry hra zkontroluje nejvyšší hodnocení, z vámi hrané obtížnosti a v případě překonání rekordu zaznamená body do skóre.
 ![score](https://user-images.githubusercontent.com/40641833/50066636-42a3f980-01bd-11e9-966e-ea2e50121d7b.PNG)
+TestGitu
 
 
